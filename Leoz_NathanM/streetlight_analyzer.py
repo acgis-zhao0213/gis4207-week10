@@ -9,28 +9,27 @@ roads_cl_fc='Road_Centrelines\Road_Centrelines.shp'
 road_name_field=arcpy.AddFieldDelimiters(ws,'ROAD_NAME')
 
 def _get_unique_values(field_name):
-
-   
-    with arcpy.da.SearchCursor(streetlight_fc,'STREET_NAM') as cursor:
+      with arcpy.da.SearchCursor(streetlight_fc,'STREET_NAM') as cursor:
         field_list = []
         for row in cursor:
             field_list += row
         if field_name not in field_list:
-
-            return print('Road name is invalid')
-			break
+            print('Road name is invalid')
+            break
         else:
-            return print('Road name is valid')
-			continue
+            print('Road name is valid')
+            continue
 
 def get_streetlight_count(road_name, distance):
-	def _get_unique_values(road_name)
+	_get_unique_values(road_name)
     road_segments = arcpy.management.SelectLayerByAttribute(roads_cl_fc, "NEW_SELECTION", f"{road_name_field} = '{road_name}'")
   
     near_streetlights,in_lyr,count = arcpy.management.SelectLayerByLocation(streetlight_fc, "WITHIN_A_DISTANCE", road_segments, distance)
 
     return count
 
+
+print(get_streetlight_count('BRADLEY',0.0002))
 def save_streetlights(road_name, distance, out_fc):
     road_segments = arcpy.management.SelectLayerByAttribute(roads_cl_fc, "NEW_SELECTION", f"{road_name_field} = '{road_name}'")
   
