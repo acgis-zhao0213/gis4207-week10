@@ -8,28 +8,39 @@ streetlight_fc= 'Street_Lights\Street_Lights.shp'
 roads_cl_fc='Road_Centrelines\Road_Centrelines.shp'
 road_name_field=arcpy.AddFieldDelimiters(ws,'ROAD_NAME')
 
-def _get_unique_values(field_name):
-      with arcpy.da.SearchCursor(streetlight_fc,'STREET_NAM') as cursor:
-        field_list = []
-        for row in cursor:
-            field_list += row
-        if field_name not in field_list:
-            print('Road name is invalid')
-            break
-        else:
-            print('Road name is valid')
-            continue
+def _get_unique_values(fc, field_name):
+      unique_values = set()
+      with arcpy.da.SearchCursor(fc,[field_name]) as cursor:
+        for row in cursor: 
+           unique_values.add(row[0])
+        return unique_values 
 
 def get_streetlight_count(road_name, distance):
-	_get_unique_values(road_name)
-    road_segments = arcpy.management.SelectLayerByAttribute(roads_cl_fc, "NEW_SELECTION", f"{road_name_field} = '{road_name}'")
-  
-    near_streetlights,in_lyr,count = arcpy.management.SelectLayerByLocation(streetlight_fc, "WITHIN_A_DISTANCE", road_segments, distance)
+    
+    streetlight = "Street_Lights"
 
-    return count
+    unique_roads = _get_unique_values("Road_Centrelines", "ROAD_NAME")
+
+    if road_name in unique_roads: 
+        arcpy.management.SelectLayerByLocation("Road_Centrelines", "NEW_SELECTION", "ROADNAME = '{}'".format(road_name), None) 
+        arcpy.management.SaveToLayerFile('Road_Centrelines', road_name) 
 
 
-print(get_streetlight_count('BRADLEY',0.0002))
+        Selection_Layer = arcpy.management.SelectLayerByLocation(streetlight, 'WITHIN_A_DISTANCE', road_name + '.lryx', distance, "NEW_SELECTION", "NOT_INVERT")
+        return arcpy.management.GetCount(Selection_Layer)[0]
+    else: 
+        print('Road Invalid')
+        print (unique_roads)
+        pass 
+
+Road = "CRAMER" 
+road_distance = "0.002 DecimalDegrees"
+
+get_streetlight_count(Road, road_distance)
+
+
+
+
 def save_streetlights(road_name, distance, out_fc):
     road_segments = arcpy.management.SelectLayerByAttribute(roads_cl_fc, "NEW_SELECTION", f"{road_name_field} = '{road_name}'")
   
