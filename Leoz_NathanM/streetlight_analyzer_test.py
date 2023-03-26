@@ -28,7 +28,6 @@ def test_save_streetlights():
     assert test_output in filelist
 
 def test_show_road_names():
-    names = sa.show_road_names(pattern=None)
-    test_output = 'ZOKOL'
-    print('names type',type(names))
-    assert test_output in names
+    sa.show_road_names(pattern=None)
+    captured = capsys.readouterr()
+    assert 'ZOKOL' in captured.out
